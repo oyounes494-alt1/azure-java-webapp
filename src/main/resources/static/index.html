@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Azure Java App Service</title>
+  <style>
+    :root {
+      --g1: #ff5f6d;
+      --g2: #ffc371;
+      --g3: #7f5af0;
+      --g4: #2cb67d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(135deg, var(--g1), var(--g2), var(--g3), var(--g4));
+      background-size: 300% 300%;
+      animation: gradientFlow 12s ease infinite;
+      overflow-x: hidden;
+    }
+
+    @keyframes gradientFlow {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .card {
+      width: 100%;
+      max-width: 680px;
+      background: rgba(15, 23, 42, 0.42);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 24px;
+      padding: 36px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(44, 182, 125, 0.25);
+      border: 1px solid rgba(74, 222, 128, 0.6);
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #4ade80;
+      box-shadow: 0 0 10px #4ade80;
+      animation: pulse 1.6s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50%      { transform: scale(1.35); opacity: 0.6; }
+    }
+
+    .subtitle {
+      opacity: 0.9;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 26px;
+    }
+
+    .tile {
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 16px;
+      padding: 16px;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .tile:hover {
+      transform: translateY(-3px);
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.8;
+      margin-bottom: 6px;
+    }
+
+    .value {
+      font-size: 1.05rem;
+      font-weight: 700;
+      word-break: break-all;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    button.ping-btn {
+      cursor: pointer;
+      border: none;
+      border-radius: 14px;
+      padding: 12px 22px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0f172a;
+      background: #ffffff;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    button.ping-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.28);
+    }
+
+    button.ping-btn:active { transform: scale(0.97); }
+
+    .themes {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .swatch:hover { transform: scale(1.18); }
+
+    .particle {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: pop 0.85s ease-out forwards;
+    }
+
+    @keyframes pop {
+      0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="header">
+      <h1>Java on Azure</h1>
+      <div class="badge"><span class="dot"></span><span id="status">CONNECTING...</span></div>
+    </div>
+
+    <p class="subtitle">
+      Spring Boot 4 + Java 21 running live on Azure App Service. Click the button to query the Java backend or switch color palettes.
+    </p>
+
+    <section class="grid">
+      <div class="tile"><div class="label">Hostname</div><div class="value" id="hostname">—</div></div>
+      <div class="tile"><div class="label">Java Runtime</div><div class="value" id="javaVersion">—</div></div>
+      <div class="tile"><div class="label">Operating System</div><div class="value" id="os">—</div></div>
+      <div class="tile"><div class="label">Uptime</div><div class="value" id="uptime">—</div></div>
+      <div class="tile"><div class="label">API Hits</div><div class="value" id="requests">—</div></div>
+      <div class="tile"><div class="label">Latency</div><div class="value" id="latency">—</div></div>
+    </section>
+
+    <div class="controls">
+      <button class="ping-btn" id="pingBtn">Ping Java Backend</button>
+      <div class="themes" aria-label="Color Themes">
+        <button class="swatch" style="background: linear-gradient(135deg,#ff5f6d,#7f5af0)" onclick="setTheme('#ff5f6d','#ffc371','#7f5af0','#2cb67d')" title="Sunset Pop"></button>
+        <button class="swatch" style="background: linear-gradient(135deg,#00c6ff,#7928ca)" onclick="setTheme('#00c6ff','#0072ff','#7928ca','#ff0080')" title="Neon Ocean"></button>
+        <button class="swatch" style="background: linear-gradient(135deg,#11998e,#38ef7d)" onclick="setTheme('#11998e','#38ef7d','#00b4db','#8e2de2')" title="Aurora Mint"></button>
+        <button class="swatch" style="background: linear-gradient(135deg,#f953c6,#f7971e)" onclick="setTheme('#f953c6','#b91d73','#f7971e','#ffd200')" title="Candy Cyber"></button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function setTheme(c1, c2, c3, c4) {
+      const r = document.documentElement.style;
+      r.setProperty('--g1', c1);
+      r.setProperty('--g2', c2);
+      r.setProperty('--g3', c3);
+      r.setProperty('--g4', c4);
+    }
+
+    function burst(x, y) {
+      const colors = ['#ff5f6d', '#ffc371', '#4ade80', '#38bdf8', '#c084fc', '#ffffff'];
+      for (let i = 0; i < 18; i++) {
+        const el = document.createElement('span');
+        el.className = 'particle';
+        const angle = (Math.PI * 2 * i) / 18;
+        const dist = 45 + Math.random() * 65;
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        el.style.background = colors[i % colors.length];
+        el.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+        el.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 850);
+      }
+    }
+
+    async function loadInfo(event) {
+      const start = performance.now();
+      try {
+        const res = await fetch('/api/info');
+        const data = await res.json();
+        const ms = Math.round(performance.now() - start);
+
+        document.getElementById('status').textContent = data.status;
+        document.getElementById('hostname').textContent = data.hostname;
+        document.getElementById('javaVersion').textContent = 'Java ' + data.javaVersion;
+        document.getElementById('os').textContent = data.os;
+        document.getElementById('uptime').textContent = data.uptime;
+        document.getElementById('requests').textContent = data.requests;
+        document.getElementById('latency').textContent = ms + ' ms';
+
+        if (event) burst(event.clientX, event.clientY);
+      } catch (err) {
+        document.getElementById('status').textContent = 'OFFLINE';
+      }
+    }
+
+    document.getElementById('pingBtn').addEventListener('click', loadInfo);
+    loadInfo();
+  </script>
+</body>
+</html>
